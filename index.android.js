@@ -7,6 +7,7 @@ import {
   Dimensions,
   StyleSheet,
   Text,
+  Image,
   TouchableHighlight,
   View
 } from 'react-native';
@@ -48,20 +49,37 @@ class ScanApp extends Component {
             }}>
               <Text>OK</Text>
             </TouchableHighlight>
-
           </View>
          </View>
         </Modal>
-        <View style={styles.top}></View>
+        <View style={styles.top}>
+          <Image source={require('./img/background.png')} style={styles.backgroundImage}>
+            <Text style={styles.fontWhite}>SOCHEG</Text>
+          </Image>
+        </View>
         <Camera
           ref={(cam) => {
             this.camera = cam;
           }}
+          aspect={Camera.constants.Aspect.fill}
           onBarCodeRead={this.onBarCodeRead.bind(this)}
-          type={Camera.constants.Type.back}
+          type={Camera.constants.Type.front}
+          mirrorImage={true}
           style={styles.scan}>
+          <View style={styles.squareTop}></View>
+          <View style={styles.squareMidC}>
+            <View style={styles.squareLeft}></View>
+            <View style={styles.square}></View>
+            <View style={styles.squareRight}></View>
+          </View>
+          <View style={styles.squareBottom}></View>
         </Camera>
-        <View style={styles.bottom}></View>
+        <View style={styles.bottom}>
+          <View style={styles.note}>
+            <Text style={styles.noteBold}>Nota</Text>
+            <Text style={styles.noteNormal}>Para registar su horario, presente su invitación frente a esta pantalla.</Text>
+          </View>
+        </View>
       </View>
     );
   }
@@ -78,20 +96,77 @@ let activeUser = {};
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center'
+    justifyContent: 'center',
+    flexDirection: 'column',
+    alignItems: 'center',
   },
   top: {
-    flex: 1,
-    height: 250,
-    backgroundColor:'#432234'
+    height: 300,
+    width: '100%',
+    backgroundColor:'#454254'
+  },
+  backgroundImage: {
+    alignItems: 'center',
+    resizeMode: 'cover',
+    height: 200,
+    width: '100%',
   },
   scan: {
-    flex: 2,
-    height: 350,
+    height: 550,
+    width: '100%',
+  },
+  square: {
+    height: 200,
+    width: 200,
+    borderWidth: 0.5,
+    borderColor:'#fff'
+  },
+  squareMidC: {
+    flexDirection: 'row'
+  },
+  squareTop: {
+    opacity: 0.4,
+    width: '100%',
+    height: 175,
+    backgroundColor: '#000'
+  },
+  squareLeft: {
+    opacity: 0.4,
+    width: 300,
+    height: 200,
+    backgroundColor: '#000'
+  },
+  squareRight: {
+    opacity: 0.4,
+    width: 300,
+    height: 200,
+    backgroundColor: '#000'
+  },
+  squareBottom: {
+    opacity: 0.4,
+    width: '100%',
+    height: 175,
+    backgroundColor: '#000'
   },
   bottom: {
     flex: 3,
-    backgroundColor:'#432234'
+    backgroundColor:'#EEEEEE'
+  },
+  note: {
+    borderBottomColor: '#00B9E6',
+    borderBottomWidth: 0.5,
+  },
+  noteBold: {
+    color: '#00B9E6',
+  },
+  noteNormal: {
+    color: '#333',
+  },
+  fontWhite: {
+    fontFamily: 'Roboto',
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#fff'
   }
 });
 
