@@ -25,6 +25,13 @@ const firebaseConfig = {
 const firebaseApp = firebase.initializeApp(firebaseConfig);
 const itemsRef = firebaseApp.database().ref();
 
+let info = {};
+let activeUser = {};
+
+itemsRef.child(`settings`).on('value', (snap) => {
+  info = snap.val();
+});
+
 class ScanApp extends Component {
   state = {
     modalVisible: false,
@@ -54,8 +61,11 @@ class ScanApp extends Component {
         </Modal>
         <View style={styles.top}>
           <Image source={require('./img/background.png')} style={styles.backgroundImage}>
-            <Text style={styles.fontWhite}>SOCHEG</Text>
+            <Text style={styles.title}>SOCHEG</Text>
+            <Text style={styles.subTitle}>Sala 1</Text>
           </Image>
+          <Text style={styles.event}>Nombre de la Charla o Evento</Text>
+          <Text style={styles.eventDate}>Mayo 4 - 11:00am</Text>
         </View>
         <Camera
           ref={(cam) => {
@@ -77,7 +87,7 @@ class ScanApp extends Component {
         <View style={styles.bottom}>
           <View style={styles.note}>
             <Text style={styles.noteBold}>Nota</Text>
-            <Text style={styles.noteNormal}>Para registar su horario, presente su invitación frente a esta pantalla.</Text>
+            <Text style={styles.noteNormal}>Para registrar su horario, presente su invitación frente a esta pantalla.</Text>
           </View>
         </View>
       </View>
@@ -92,7 +102,6 @@ class ScanApp extends Component {
 
 }
 
-let activeUser = {};
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -101,7 +110,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   top: {
-    height: 300,
+    height: 310,
     width: '100%',
     backgroundColor:'#454254'
   },
@@ -150,23 +159,59 @@ const styles = StyleSheet.create({
   },
   bottom: {
     flex: 3,
-    backgroundColor:'#EEEEEE'
+    backgroundColor:'#EEEEEE',
+    width: '100%'
   },
   note: {
+    marginTop: 100,
     borderBottomColor: '#00B9E6',
     borderBottomWidth: 0.5,
+    marginLeft: 50,
+    marginRight: 50,
   },
   noteBold: {
+    fontFamily: 'Montserrat-Regular',
+    fontSize: 30,
     color: '#00B9E6',
   },
   noteNormal: {
+    marginBottom: 20,
+    fontFamily: 'Montserrat-Light',
+    fontSize: 25,
     color: '#333',
   },
-  fontWhite: {
-    fontFamily: 'Roboto',
-    fontSize: 20,
-    fontWeight: 'bold',
+  title: {
+    marginLeft: 50,
+    fontFamily: 'Montserrat-Bold',
+    fontSize: 40,
     color: '#fff'
+  },
+  subTitle: {
+    marginLeft: 50,
+    fontFamily: 'Montserrat-Light',
+    fontSize: 32,
+    color: '#fff'
+  },
+  event: {
+    marginLeft: 50,
+    marginTop: 10,
+    fontFamily: 'Montserrat-Regular',
+    fontSize: 30,
+    color: '#fff'
+  },
+  eventDate: {
+    marginLeft: 50,
+    marginTop: 0,
+    fontFamily: 'Montserrat-Regular',
+    fontSize: 25,
+    opacity: 0.7,
+    color: '#fff'
+  },
+  fontLight: {
+    fontFamily: 'Montserrat-Light',
+  },
+  fontRegular: {
+    fontFamily: 'Montserrat-Regular',
   }
 });
 
