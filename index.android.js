@@ -1,4 +1,5 @@
 'use strict';
+
 import React, { Component } from 'react';
 import {
   AppRegistry,
@@ -10,6 +11,18 @@ import {
   View
 } from 'react-native';
 import Camera from 'react-native-camera';
+import * as firebase from 'firebase';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD2yyAV6j40TlyQgg7d8tXZq0f8yaYpCbM",
+  authDomain: "porticos-18e1d.firebaseapp.com",
+  databaseURL: "https://porticos-18e1d.firebaseio.com",
+  projectId: "porticos-18e1d",
+  storageBucket: "porticos-18e1d.appspot.com",
+  messagingSenderId: "578629257790",
+};
+const firebaseApp = firebase.initializeApp(firebaseConfig);
+const itemsRef = firebaseApp.database().ref();
 
 class ScanApp extends Component {
   state = {
@@ -18,7 +31,6 @@ class ScanApp extends Component {
   setModalVisible(visible) {
     this.setState({modalVisible: visible});
   }
-
   render() {
     return (
       <View style={styles.container}>
@@ -26,11 +38,11 @@ class ScanApp extends Component {
           animationType={"slide"}
           transparent={false}
           visible={this.state.modalVisible}
-          onRequestClose={() => {console.log("Modal has been closed.")}}
+          onRequestClose={() => {activeUser = {};}}
           >
          <View style={{marginTop: 22}}>
           <View>
-            <Text>{codeId}</Text>
+            <Text>{activeUser.name}</Text>
             <TouchableHighlight onPress={() => {
               this.setModalVisible(!this.state.modalVisible)
             }}>
@@ -54,12 +66,15 @@ class ScanApp extends Component {
     );
   }
   onBarCodeRead(e) {
-    codeId = e.data;
-    this.setModalVisible(true);
+    itemsRef.child(`users/${e.data}`).once('value', (snap) => {
+      activeUser = snap.val();
+      this.setModalVisible(true);
+    });
   }
+
 }
 
-const codeId = ':D';
+let activeUser = {};
 const styles = StyleSheet.create({
   container: {
     flex: 1,
