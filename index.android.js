@@ -3,16 +3,18 @@
 import React, { Component } from 'react';
 import {
   AppRegistry,
-  Modal,
   Dimensions,
   StyleSheet,
   Text,
   Image,
+  TouchableOpacity,
   TouchableHighlight,
-  View
+  View,
+  StatusBar
 } from 'react-native';
 import Camera from 'react-native-camera';
 import * as firebase from 'firebase';
+import Modal from 'react-native-simple-modal';
 
 const firebaseConfig = {
   apiKey: "AIzaSyD2yyAV6j40TlyQgg7d8tXZq0f8yaYpCbM",
@@ -33,32 +35,11 @@ itemsRef.child(`settings`).on('value', (snap) => {
 });
 
 class ScanApp extends Component {
-  state = {
-    modalVisible: false,
-  }
-  setModalVisible(visible) {
-    this.setState({modalVisible: visible});
-  }
+  state = {open: false, active: true};
   render() {
     return (
       <View style={styles.container}>
-        <Modal
-          animationType={"slide"}
-          transparent={false}
-          visible={this.state.modalVisible}
-          onRequestClose={() => {activeUser = {};}}
-          >
-         <View style={{marginTop: 22}}>
-          <View>
-            <Text>{activeUser.name}</Text>
-            <TouchableHighlight onPress={() => {
-              this.setModalVisible(!this.state.modalVisible)
-            }}>
-              <Text>OK</Text>
-            </TouchableHighlight>
-          </View>
-         </View>
-        </Modal>
+        <StatusBar hidden />
         <View style={styles.top}>
           <Image source={require('./img/background.png')} style={styles.backgroundImage}>
             <Text style={styles.title}>SOCHEG</Text>
@@ -73,7 +54,7 @@ class ScanApp extends Component {
           }}
           aspect={Camera.constants.Aspect.fill}
           onBarCodeRead={this.onBarCodeRead.bind(this)}
-          type={Camera.constants.Type.front}
+          type={Camera.constants.Type.back}
           mirrorImage={true}
           style={styles.scan}>
           <View style={styles.squareTop}></View>
@@ -90,19 +71,56 @@ class ScanApp extends Component {
             <Text style={styles.noteNormal}>Para registrar su horario, presente su invitación frente a esta pantalla.</Text>
           </View>
         </View>
+        <Modal
+          offset={this.state.offset}
+          open={this.state.open}
+          animationDuration={500}
+          animationTension={50}
+          modalDidOpen={() => undefined}
+          modalDidClose={() => this.setState({open: false, active: true})}
+          style={styles.modal}
+          overlayBackground={'rgba(69, 66, 84, 0.85)'}
+          >
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Bienvenido {activeUser.name}</Text>
+            <Text style={styles.modalSubtitle}>{activeUser.title}</Text>
+            <TouchableOpacity
+              style={{margin: 50}}
+              onPress={() => this.setState({open: false})}>
+              <Text>OK</Text>
+            </TouchableOpacity>
+          </View>
+        </Modal>
       </View>
     );
   }
-  onBarCodeRead(e) {
-    itemsRef.child(`users/${e.data}`).once('value', (snap) => {
-      activeUser = snap.val();
-      this.setModalVisible(true);
-    });
-  }
+  //render Ends
 
+  onBarCodeRead(e) {
+    if(this.state.active) {
+      itemsRef.child(`users/${e.data}`).once('value', (snap) => {
+        this.setState({open: true});
+        activeUser = snap.val();  
+      });
+    }
+    this.setState({active: false});
+  }
 }
 
 const styles = StyleSheet.create({
+  modal: {
+    justifyContent: 'center',
+    borderRadius: 20,
+    backgroundColor: '#eee'
+  },
+  modalContent: {
+    justifyContent: 'center',
+  },
+  modalTitle: {
+    justifyContent: 'center',
+    fontFamily: 'Montserrat-Regular',
+    fontSize: 40,
+  },
   container: {
     flex: 1,
     justifyContent: 'center',
@@ -110,7 +128,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   top: {
-    height: 310,
+    height: 340,
     width: '100%',
     backgroundColor:'#454254'
   },
@@ -158,7 +176,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#000'
   },
   bottom: {
-    flex: 3,
+    flex: 4,
     backgroundColor:'#EEEEEE',
     width: '100%'
   },
@@ -194,7 +212,7 @@ const styles = StyleSheet.create({
   },
   event: {
     marginLeft: 50,
-    marginTop: 10,
+    marginTop: 20,
     fontFamily: 'Montserrat-Regular',
     fontSize: 30,
     color: '#fff'
