@@ -78,7 +78,7 @@ class ScanApp extends Component {
           animationTension={50}
           modalDidOpen={() => undefined}
           modalDidClose={() => this.setState({open: false, active: true})}
-          style={styles.modal}
+          modalStyle={styles.modal}
           overlayBackground={'rgba(69, 66, 84, 0.85)'}
           >
           <View style={styles.modalContent}>
@@ -109,14 +109,17 @@ class ScanApp extends Component {
 
 const styles = StyleSheet.create({
   modal: {
+    borderRadius: 10,
     justifyContent: 'center',
-    borderRadius: 20,
+    height: 900,
+    margin: 20,
+    padding: 10,
     backgroundColor: '#eee'
   },
   modalContent: {
-    justifyContent: 'center',
   },
   modalTitle: {
+    flexDirection: 'column',
     justifyContent: 'center',
     fontFamily: 'Montserrat-Regular',
     fontSize: 40,
