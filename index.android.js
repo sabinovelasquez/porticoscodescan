@@ -2,6 +2,7 @@
 
 import React, { Component } from 'react';
 import {
+  ActivityIndicator,
   AppRegistry,
   Dimensions,
   StyleSheet,
@@ -24,18 +25,27 @@ const firebaseConfig = {
   storageBucket: "porticos-18e1d.appspot.com",
   messagingSenderId: "578629257790",
 };
-const firebaseApp = firebase.initializeApp(firebaseConfig);
-const itemsRef = firebaseApp.database().ref();
-
-let info = {};
-let activeUser = {};
-
-itemsRef.child(`settings`).on('value', (snap) => {
-  info = snap.val();
-});
 
 class ScanApp extends Component {
-  state = {open: false, active: true};
+  constructor(props) {
+    super(props);
+    const firebaseApp = firebase.initializeApp(firebaseConfig);
+    this.itemsRef = firebaseApp.database().ref();
+    this.state = {
+      open: false,
+      active: true
+    };
+  }
+
+  componentDidMount() {
+    this.itemsRef.child(`settings`).on('value', (snap) => {
+      const info = snap.val();
+      this.setState({
+        note: info.note
+      });
+    });
+  }
+
   render() {
     return (
       <View style={styles.container}>
@@ -68,7 +78,8 @@ class ScanApp extends Component {
         <View style={styles.bottom}>
           <View style={styles.note}>
             <Text style={styles.noteBold}>Nota</Text>
-            <Text style={styles.noteNormal}>Para registrar su horario, presente su invitación frente a esta pantalla.</Text>
+            <ActivityIndicator size='large' style={{opacity: !this.state.note ? 1.0 : 0.0}}/>
+            <Text style={styles.noteNormal}>{this.state.note}</Text>
           </View>
         </View>
         <Modal
@@ -77,13 +88,15 @@ class ScanApp extends Component {
           animationDuration={500}
           animationTension={50}
           modalDidOpen={() => undefined}
-          modalDidClose={() => this.setState({open: false, active: true})}
+          modalDidClose={() => this.setState({open: false, active: true, userName: null})}
           modalStyle={styles.modal}
           overlayBackground={'rgba(69, 66, 84, 0.85)'}
           >
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Bienvenido {activeUser.name}</Text>
-            <Text style={styles.modalSubtitle}>{activeUser.title}</Text>
+            <Text style={styles.modalTitle}>Bienvenido</Text>
+            <ActivityIndicator size='large' style={{opacity: !this.state.userName ? 1.0 : 0.0}}/>
+            <Text style={styles.modalTitle}>{this.state.userName}</Text>
+            <Text style={styles.modalSubtitle}>{this.state.userTitle}</Text>
             <TouchableOpacity
               style={{margin: 50}}
               onPress={() => this.setState({open: false})}>
@@ -94,13 +107,17 @@ class ScanApp extends Component {
       </View>
     );
   }
-  //render Ends
+  /////render Ends
 
   onBarCodeRead(e) {
     if(this.state.active) {
-      itemsRef.child(`users/${e.data}`).once('value', (snap) => {
-        this.setState({open: true});
-        activeUser = snap.val();  
+      this.setState({open:true});
+      this.itemsRef.child(`users/${e.data}`).on('value', (snap) => {
+        const info = snap.val();
+        this.setState({
+          userName: info.name,
+          userTitle: info.title
+        });
       });
     }
     this.setState({active: false});
