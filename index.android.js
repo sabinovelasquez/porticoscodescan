@@ -32,8 +32,12 @@ class ScanApp extends Component {
     super(props);
     this.itemsRef = firebaseApp.database().ref();
     this.state = {
-      open: false,
-      active: true,
+      //dummy:
+      open: true,
+      userName: 'Sabino Velásquez',
+      userTitle: 'Médico General',
+      //real thing:
+      //open: false,
       capType: Camera.constants.Type.back
     };
   }
@@ -89,7 +93,7 @@ class ScanApp extends Component {
           animationDuration={500}
           animationTension={50}
           modalDidOpen={() => undefined}
-          modalDidClose={() => this.setState({open: false, active: true, userName: null})}
+          modalDidClose={() => this.setState({open: false, userName: null, capType: Camera.constants.Type.back})}
           modalStyle={styles.modal}
           overlayBackground={'rgba(69, 66, 84, 0.85)'}
           >
@@ -111,9 +115,10 @@ class ScanApp extends Component {
   /////render Ends
 
   onBarCodeRead(e) {
-    if(this.state.active && e.type === 'QR_CODE') {
-      this.setState({open:true});
-      this.itemsRef.child(`users/${e.data}`).on('value', (snap) => {
+    const fbchecker = e.data;
+    if(fbchecker.substring(0, 4) == '-KiM') {
+      this.setState({open:true, capType: Camera.constants.Type.front});
+      this.itemsRef.child(`users/${fbchecker}`).once('value', (snap) => {
         const info = snap.val();
         this.setState({
           userName: info.name,
@@ -121,7 +126,6 @@ class ScanApp extends Component {
         });
       });
     }
-    this.setState({active: false});
   }
 }
 
@@ -136,8 +140,7 @@ const styles = StyleSheet.create({
   modalContent: {
   },
   modalTitle: {
-    flexDirection: 'column',
-    justifyContent: 'center',
+    textAlign: 'center',
     fontFamily: 'Montserrat-Regular',
     fontSize: 40,
   },
