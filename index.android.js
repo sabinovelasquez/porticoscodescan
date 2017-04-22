@@ -25,15 +25,16 @@ const firebaseConfig = {
   storageBucket: "porticos-18e1d.appspot.com",
   messagingSenderId: "578629257790",
 };
+const firebaseApp = firebase.initializeApp(firebaseConfig);
 
 class ScanApp extends Component {
   constructor(props) {
     super(props);
-    const firebaseApp = firebase.initializeApp(firebaseConfig);
     this.itemsRef = firebaseApp.database().ref();
     this.state = {
       open: false,
-      active: true
+      active: true,
+      capType: Camera.constants.Type.back
     };
   }
 
@@ -64,7 +65,7 @@ class ScanApp extends Component {
           }}
           aspect={Camera.constants.Aspect.fill}
           onBarCodeRead={this.onBarCodeRead.bind(this)}
-          type={Camera.constants.Type.back}
+          type={this.state.capType}
           mirrorImage={true}
           style={styles.scan}>
           <View style={styles.squareTop}></View>
@@ -110,7 +111,7 @@ class ScanApp extends Component {
   /////render Ends
 
   onBarCodeRead(e) {
-    if(this.state.active) {
+    if(this.state.active && e.type === 'QR_CODE') {
       this.setState({open:true});
       this.itemsRef.child(`users/${e.data}`).on('value', (snap) => {
         const info = snap.val();
@@ -128,7 +129,6 @@ const styles = StyleSheet.create({
   modal: {
     borderRadius: 10,
     justifyContent: 'center',
-    height: 900,
     margin: 20,
     padding: 10,
     backgroundColor: '#eee'
@@ -148,18 +148,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   top: {
-    height: 340,
+    height: 280,
     width: '100%',
     backgroundColor:'#454254'
   },
   backgroundImage: {
     alignItems: 'center',
     resizeMode: 'cover',
-    height: 200,
+    height: 150,
     width: '100%',
   },
   scan: {
-    height: 550,
+    height: 360,
     width: '100%',
   },
   square: {
@@ -174,22 +174,25 @@ const styles = StyleSheet.create({
   squareTop: {
     opacity: 0.4,
     width: '100%',
-    height: 175,
+    height: 80,
     backgroundColor: '#000'
   },
   squareLeft: {
+    marginTop:-1,
     opacity: 0.4,
-    width: 300,
+    width: 200,
     height: 200,
     backgroundColor: '#000'
   },
   squareRight: {
+    marginTop:-1,
     opacity: 0.4,
-    width: 300,
+    width: 200,
     height: 200,
     backgroundColor: '#000'
   },
   squareBottom: {
+    marginTop: -0.5,
     opacity: 0.4,
     width: '100%',
     height: 175,
@@ -201,31 +204,36 @@ const styles = StyleSheet.create({
     width: '100%'
   },
   note: {
-    marginTop: 100,
+    marginTop: 50,
+    marginBottom: 10,
     borderBottomColor: '#00B9E6',
     borderBottomWidth: 0.5,
     marginLeft: 50,
     marginRight: 50,
   },
   noteBold: {
+    marginTop: 5,
     fontFamily: 'Montserrat-Regular',
     fontSize: 30,
     color: '#00B9E6',
   },
   noteNormal: {
+    marginTop: -20,
     marginBottom: 20,
     fontFamily: 'Montserrat-Light',
-    fontSize: 25,
+    fontSize: 22,
     color: '#333',
   },
   title: {
-    marginLeft: 50,
+    textAlign: 'center',
+    width: '100%',
     fontFamily: 'Montserrat-Bold',
     fontSize: 40,
     color: '#fff'
   },
   subTitle: {
-    marginLeft: 50,
+    textAlign: 'center',
+    width: '100%',
     fontFamily: 'Montserrat-Light',
     fontSize: 32,
     color: '#fff'
