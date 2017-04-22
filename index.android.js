@@ -17,6 +17,7 @@ import Camera from 'react-native-camera';
 import * as firebase from 'firebase';
 import Modal from 'react-native-simple-modal';
 
+const device = require('react-native-device-info');
 const firebaseConfig = {
   apiKey: "AIzaSyD2yyAV6j40TlyQgg7d8tXZq0f8yaYpCbM",
   authDomain: "porticos-18e1d.firebaseapp.com",
@@ -25,6 +26,8 @@ const firebaseConfig = {
   storageBucket: "porticos-18e1d.appspot.com",
   messagingSenderId: "578629257790",
 };
+
+const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 const firebaseApp = firebase.initializeApp(firebaseConfig);
 
 class ScanApp extends Component {
@@ -32,20 +35,17 @@ class ScanApp extends Component {
     super(props);
     this.itemsRef = firebaseApp.database().ref();
     this.state = {
-      //dummy:
-      open: true,
-      userName: 'Sabino Velásquez',
-      userTitle: 'Médico General',
-      //real thing:
-      //open: false,
+      open: false,
+      deviceId: device.getUniqueID(),
       capType: Camera.constants.Type.back
     };
   }
 
   componentDidMount() {
-    this.itemsRef.child(`settings`).on('value', (snap) => {
+    this.itemsRef.child(`${this.state.deviceId}/settings`).once('value', (snap) => {
       const info = snap.val();
       this.setState({
+        eventTitle: info.event,
         note: info.note
       });
     });
@@ -98,14 +98,22 @@ class ScanApp extends Component {
           overlayBackground={'rgba(69, 66, 84, 0.85)'}
           >
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Bienvenido</Text>
             <ActivityIndicator size='large' style={{opacity: !this.state.userName ? 1.0 : 0.0}}/>
-            <Text style={styles.modalTitle}>{this.state.userName}</Text>
+            <Text style={styles.modalTitle}>
+              Bienvenido{"\n"}{this.state.userName}
+            </Text>
             <Text style={styles.modalSubtitle}>{this.state.userTitle}</Text>
+            <View style={{marginTop:50, marginLeft:20}}>
+              <Text style={styles.modalTitles}>ASISTE</Text>
+              <Text style={styles.modalData}>{this.state.eventTitle}</Text>
+              <Text style={styles.modalTitles}>FECHA DE INGRESO</Text>
+              <Text style={styles.modalData}>{this.state.userMonth} {this.state.userDay}</Text>
+              <Text style={styles.modalTitles}>HORA DE REGISTRO</Text>
+              <Text style={styles.modalDataHour}>{this.state.userHour}:{this.state.userMinutes}</Text>
+            </View>
             <TouchableOpacity
-              style={{margin: 50}}
               onPress={() => this.setState({open: false})}>
-              <Text>OK</Text>
+              <Text style={styles.closeModal}>OK</Text>
             </TouchableOpacity>
           </View>
         </Modal>
@@ -117,7 +125,15 @@ class ScanApp extends Component {
   onBarCodeRead(e) {
     const fbchecker = e.data;
     if(fbchecker.substring(0, 4) == '-KiM') {
-      this.setState({open:true, capType: Camera.constants.Type.front});
+      const d = new Date();
+      this.setState({
+        userDay: d.getDate(),
+        userHour: d.getHours(),
+        userMinutes: d.getMinutes(),
+        userMonth: months[d.getMonth()],
+        open:true,
+        capType: Camera.constants.Type.front,
+      });
       this.itemsRef.child(`users/${fbchecker}`).once('value', (snap) => {
         const info = snap.val();
         this.setState({
@@ -139,10 +155,38 @@ const styles = StyleSheet.create({
   },
   modalContent: {
   },
+  modalTitles: {
+    color: '#00B9E6',
+    fontFamily: 'Montserrat-Regular',
+    fontSize: 22,
+  },
   modalTitle: {
     textAlign: 'center',
     fontFamily: 'Montserrat-Regular',
     fontSize: 40,
+  },
+  modalData: {
+    fontSize: 20,
+    fontFamily: 'Montserrat-Regular',
+    marginBottom: 15
+  },
+  modalDataHour: {
+    fontSize: 40,
+    fontFamily: 'Montserrat-Regular',
+    marginBottom: 15
+  },
+  modalSubtitle: {
+    textAlign: 'center',
+    fontFamily: 'Montserrat-Light',
+    fontSize: 30,
+  },
+  closeModal: {
+    color: '#FF0068',
+    textAlign:'right',
+    fontSize: 30,
+    fontFamily: 'Montserrat-Light',
+    marginRight: 20,
+    marginBottom: 20
   },
   container: {
     flex: 1,
