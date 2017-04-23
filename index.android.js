@@ -36,6 +36,7 @@ class ScanApp extends Component {
     this.itemsRef = firebaseApp.database().ref();
     this.state = {
       open: false,
+      saving: false,
       deviceId: device.getUniqueID(),
       capType: Camera.constants.Type.back
     };
@@ -45,7 +46,9 @@ class ScanApp extends Component {
     this.itemsRef.child(`${this.state.deviceId}/settings`).on('value', (snap) => {
       const info = snap.val();
       this.setState({
+        eventWhere: info.where,
         eventTitle: info.event,
+        eventHour: info.eventHour,
         note: info.note
       });
     });
@@ -58,10 +61,11 @@ class ScanApp extends Component {
         <View style={styles.top}>
           <Image source={require('./img/background.png')} style={styles.backgroundImage}>
             <Text style={styles.title}>SOCHEG</Text>
-            <Text style={styles.subTitle}>Sala 1</Text>
+            <Text style={styles.subTitle}>{this.state.eventWhere}</Text>
           </Image>
-          <Text style={styles.event}>Nombre de la Charla o Evento</Text>
-          <Text style={styles.eventDate}>Mayo 4 - 11:00am</Text>
+          <ActivityIndicator size='large' style={{opacity: !this.state.note ? 1.0 : 0.0, height: !this.state.note ? 'auto' : 0, marginTop: !this.state.note ? 30 : 0}}/>
+          <Text style={styles.event}>{this.state.eventTitle}</Text>
+          <Text style={styles.eventDate}>{this.state.eventHour}</Text>
         </View>
         <Camera
           ref={(cam) => {
@@ -83,7 +87,7 @@ class ScanApp extends Component {
         <View style={styles.bottom}>
           <View style={styles.note}>
             <Text style={styles.noteBold}>Nota</Text>
-            <ActivityIndicator size='large' style={{opacity: !this.state.note ? 1.0 : 0.0}}/>
+            <ActivityIndicator size='large' style={{opacity: !this.state.note ? 1.0 : 0.0, height: !this.state.note ? 'auto' : 0}}/>
             <Text style={styles.noteNormal}>{this.state.note}</Text>
           </View>
         </View>
@@ -92,13 +96,13 @@ class ScanApp extends Component {
           open={this.state.open}
           animationDuration={500}
           animationTension={50}
-          modalDidOpen={() => undefined}
-          modalDidClose={() => this.setState({open: false, userName: null, capType: Camera.constants.Type.back})}
+          modalDidOpen={() => this.setState({open: true})}
+          modalDidClose={() => this.setState({open: false, userName: null, saving:false})}
           modalStyle={styles.modal}
           overlayBackground={'rgba(69, 66, 84, 0.85)'}
           >
           <View style={styles.modalContent}>
-            <ActivityIndicator size='large' style={{opacity: !this.state.userName ? 1.0 : 0.0}}/>
+            <ActivityIndicator size='large' style={{opacity: !this.state.userName ? 1.0 : 0.0, height: !this.state.userName ? 'auto' : 0}}/>
             <Text style={styles.modalTitle}>
               Bienvenido{"\n"}{this.state.userName}
             </Text>
@@ -124,28 +128,32 @@ class ScanApp extends Component {
 
   onBarCodeRead(e) {
     const fbchecker = e.data;
-    if(fbchecker.substring(0, 4) == '-KiM') {
+    if(fbchecker.substring(0, 3) == '-Ki' && !this.state.saving && !this.state.open) {
       const d = new Date();
       this.setState({
         userDay: d.getDate(),
         userHour: d.getHours(),
         userMinutes: d.getMinutes(),
         userMonth: months[d.getMonth()],
-        open:true,
-        capType: Camera.constants.Type.front,
+        open:true
       });
       this.itemsRef.child(`users/${fbchecker}`).once('value', (snap) => {
         const info = snap.val();
         this.setState({
           userName: info.name,
-          userTitle: info.title
+          userTitle: info.title,
+          saving: true
         });
         this.saveToFb();
       });
     }
   }
-
+  closeModal() {
+    setTimeout(() => {this.setState({open: false, saving: false})}, 6000)
+  }
   saveToFb() {
+    let that = this
+    let contSaving
     const params = {
       name: this.state.userName,
       title: this.state.userTitle,
@@ -157,8 +165,9 @@ class ScanApp extends Component {
       if (error)
         console.log('Error has occured during saving process')
       else
-        console.log("Data hss been saved succesfully")
+        console.log("Data has been saved succesfully")
     })
+    that.closeModal()
   }
 }
 
@@ -282,7 +291,7 @@ const styles = StyleSheet.create({
     color: '#00B9E6',
   },
   noteNormal: {
-    marginTop: -20,
+    marginTop: 10,
     marginBottom: 20,
     fontFamily: 'Montserrat-Light',
     fontSize: 22,
