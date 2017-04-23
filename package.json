@@ -7,15 +7,23 @@
     "test": "jest"
   },
   "dependencies": {
+    "firebase": "^3.7.8",
     "react": "16.0.0-alpha.6",
     "react-native": "^0.43.3",
-    "react-native-camera": "git+https://github.com/lwansbrough/react-native-camera.git"
+    "react-native-camera": "git+https://github.com/lwansbrough/react-native-camera.git",
+    "react-native-device-info": "^0.10.2",
+    "react-native-simple-modal": "^5.0.0"
   },
   "devDependencies": {
     "babel-jest": "19.0.0",
     "babel-preset-react-native": "1.9.1",
     "jest": "19.0.2",
     "react-test-renderer": "16.0.0-alpha.6"
+  },
+  "rnpm": {
+    "assets": [
+      "fonts"
+    ]
   },
   "jest": {
     "preset": "react-native"
