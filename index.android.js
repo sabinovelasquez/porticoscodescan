@@ -42,7 +42,7 @@ class ScanApp extends Component {
   }
 
   componentDidMount() {
-    this.itemsRef.child(`${this.state.deviceId}/settings`).once('value', (snap) => {
+    this.itemsRef.child(`${this.state.deviceId}/settings`).on('value', (snap) => {
       const info = snap.val();
       this.setState({
         eventTitle: info.event,
@@ -140,8 +140,25 @@ class ScanApp extends Component {
           userName: info.name,
           userTitle: info.title
         });
+        this.saveToFb();
       });
     }
+  }
+
+  saveToFb() {
+    const params = {
+      name: this.state.userName,
+      title: this.state.userTitle,
+      hour: `${this.state.userHour}:${this.state.userMinutes}`,
+      date: this.state.userMonth,
+      event: this.state.eventTitle
+    }
+    this.itemsRef.child(`registers`).push(params, function(error) {
+      if (error)
+        console.log('Error has occured during saving process')
+      else
+        console.log("Data hss been saved succesfully")
+    })
   }
 }
 
