@@ -150,7 +150,7 @@ class ScanApp extends Component {
       name: this.state.userName,
       title: this.state.userTitle,
       hour: `${this.state.userHour}:${this.state.userMinutes}`,
-      date: this.state.userMonth,
+      date: `${this.state.userMonth} ${this.state.userDay}`,
       event: this.state.eventTitle
     }
     this.itemsRef.child(`registers`).push(params, function(error) {
