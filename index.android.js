@@ -128,7 +128,7 @@ class ScanApp extends Component {
 
   onBarCodeRead(e) {
     const fbchecker = e.data;
-    if(fbchecker.substring(0, 3) == '-Ki' && !this.state.saving && !this.state.open) {
+    if(!this.state.saving && !this.state.open) {
       const d = new Date();
       this.setState({
         userDay: d.getDate(),
