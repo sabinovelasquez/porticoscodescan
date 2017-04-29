@@ -45,15 +45,79 @@ class ScanApp extends Component {
   componentDidMount() {
     this.itemsRef.child(`${this.state.deviceId}/settings`).on('value', (snap) => {
       const info = snap.val();
-      this.setState({
-        eventWhere: info.where,
-        eventTitle: info.event,
-        eventHour: info.eventHour,
-        note: info.note
-      });
+      if (!info) {
+        this.noDevice();
+      }else {
+        this.setState({
+          eventWhere: info.where,
+          eventTitle: info.event,
+          eventHour: info.eventHour,
+          note: info.note
+        });
+      }
     });
   }
+  
+  onBarCodeRead(e) {
+    const fbchecker = e.data;
+    if(!this.state.saving && !this.state.open) {
+      const d = new Date();
+      this.setState({
+        userDay: d.getDate(),
+        userHour: d.getHours(),
+        userMinutes: d.getMinutes(),
+        userMonth: months[d.getMonth()],
+        open:true
+      });
+      this.itemsRef.child(`users/${fbchecker}`).once('value', (snap) => {
+        const info = snap.val();
+        this.setState({
+          userName: info.name,
+          userTitle: info.title,
+          saving: true
+        });
+        this.saveToFb();
+      });
+    }
+  }
 
+  closeModal() {
+    setTimeout(() => {this.setState({open: false, saving: false})}, 6000)
+  }
+
+  saveToFb() {
+    let contSaving
+    const params = {
+      name: this.state.userName,
+      title: this.state.userTitle,
+      hour: `${this.state.userHour}:${this.state.userMinutes}`,
+      date: `${this.state.userMonth} ${this.state.userDay}`,
+      event: this.state.eventTitle
+    }
+    this.itemsRef.child(`${this.state.deviceId}/registers`).push(params, function(error) {
+      if (error)
+        console.log('Error has occured during saving process')
+      else
+        console.log("Data has been saved succesfully")
+    })
+    this.closeModal()
+  }
+
+  noDevice() {
+    const params = {
+      event: 'Acreditación',
+      note: 'Bienvenido',
+      eventHour: 'Mayo 4 - 00:00',
+      where: 'Sala X'
+    }
+    this.itemsRef.child(`${this.state.deviceId}/settings/`).set(params, function(error) {
+      if (error)
+        console.log('Error has occured during saving process')
+      else
+        console.log("Data has been saved succesfully")
+    })
+  }
+  
   render() {
     return (
       <View style={styles.container}>
@@ -125,50 +189,6 @@ class ScanApp extends Component {
     );
   }
   /////render Ends
-
-  onBarCodeRead(e) {
-    const fbchecker = e.data;
-    if(!this.state.saving && !this.state.open) {
-      const d = new Date();
-      this.setState({
-        userDay: d.getDate(),
-        userHour: d.getHours(),
-        userMinutes: d.getMinutes(),
-        userMonth: months[d.getMonth()],
-        open:true
-      });
-      this.itemsRef.child(`users/${fbchecker}`).once('value', (snap) => {
-        const info = snap.val();
-        this.setState({
-          userName: info.name,
-          userTitle: info.title,
-          saving: true
-        });
-        this.saveToFb();
-      });
-    }
-  }
-  closeModal() {
-    setTimeout(() => {this.setState({open: false, saving: false})}, 6000)
-  }
-  saveToFb() {
-    let that = this
-    let contSaving
-    const params = {
-      name: this.state.userName,
-      title: this.state.userTitle,
-      hour: `${this.state.userHour}:${this.state.userMinutes}`,
-      date: `${this.state.userMonth} ${this.state.userDay}`,
-      event: this.state.eventTitle
-    }
-    this.itemsRef.child(`registers`).push(params, function(error) {
-      if (error)
-        console.log('Error has occured during saving process')
-      else
-        console.log("Data has been saved succesfully")
-    })
-    that.closeModal()
-  }
 }
 
 const styles = StyleSheet.create({
