@@ -124,7 +124,7 @@ class ScanApp extends Component {
         <StatusBar hidden />
         <View style={styles.top}>
           <Image source={require('./img/background.png')} style={styles.backgroundImage}>
-            <Text style={styles.title}>SOCHEG</Text>
+            <Text style={styles.title}>FLEG</Text>
             <Text style={styles.subTitle}>{this.state.eventWhere}</Text>
           </Image>
           <ActivityIndicator size='large' style={{opacity: !this.state.note ? 1.0 : 0.0, height: !this.state.note ? 'auto' : 0, marginTop: !this.state.note ? 30 : 0}}/>
@@ -150,9 +150,8 @@ class ScanApp extends Component {
         </Camera>
         <View style={styles.bottom}>
           <View style={styles.note}>
-            <Text style={styles.noteBold}>Nota</Text>
+            <Text style={styles.noteBold}>{this.state.note}</Text>
             <ActivityIndicator size='large' style={{opacity: !this.state.note ? 1.0 : 0.0, height: !this.state.note ? 'auto' : 0}}/>
-            <Text style={styles.noteNormal}>{this.state.note}</Text>
           </View>
         </View>
         <Modal
@@ -252,12 +251,12 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   scan: {
-    height: 360,
+    height: 500,
     width: '100%',
   },
   square: {
-    height: 200,
-    width: 200,
+    height: 250,
+    width: 250,
     borderWidth: 0.5,
     borderColor:'#fff'
   },
@@ -267,25 +266,22 @@ const styles = StyleSheet.create({
   squareTop: {
     opacity: 0.4,
     width: '100%',
-    height: 80,
+    height: 130,
     backgroundColor: '#000'
   },
   squareLeft: {
-    marginTop:-1,
     opacity: 0.4,
-    width: 200,
-    height: 200,
+    width: 180,
+    height: 250,
     backgroundColor: '#000'
   },
   squareRight: {
-    marginTop:-1,
     opacity: 0.4,
     width: 200,
-    height: 200,
+    height: 250,
     backgroundColor: '#000'
   },
   squareBottom: {
-    marginTop: -0.5,
     opacity: 0.4,
     width: '100%',
     height: 175,
@@ -297,17 +293,15 @@ const styles = StyleSheet.create({
     width: '100%'
   },
   note: {
-    marginTop: 50,
-    marginBottom: 10,
-    borderBottomColor: '#00B9E6',
-    borderBottomWidth: 0.5,
+    marginTop: 35,
     marginLeft: 50,
     marginRight: 50,
   },
   noteBold: {
+    textAlign: 'center',
     marginTop: 5,
     fontFamily: 'Montserrat-Regular',
-    fontSize: 30,
+    fontSize: 34,
     color: '#00B9E6',
   },
   noteNormal: {
