@@ -2,6 +2,7 @@
 
 import React, { Component } from 'react';
 import {
+  Alert,
   ActivityIndicator,
   AppRegistry,
   Dimensions,
@@ -57,50 +58,62 @@ class ScanApp extends Component {
       }
     });
   }
-  
+  formatTime(inp) {
+    let timeFormat = inp;
+    if(inp<10) {
+      timeFormat = `0${inp}`;
+    }
+    return timeFormat;
+  }
   onBarCodeRead(e) {
     const fbchecker = e.data;
-    if(!this.state.saving && !this.state.open) {
+    if(fbchecker.substring(0, 1) == 'W' && !this.state.saving && !this.state.open) {
       const d = new Date();
+      const hour = this.formatTime(d.getHours());
+      const minutes = this.formatTime(d.getMinutes());
       this.setState({
         userDay: d.getDate(),
-        userHour: d.getHours(),
-        userMinutes: d.getMinutes(),
+        userHour: hour,
+        userMinutes: minutes,
         userMonth: months[d.getMonth()],
-        open:true
+        open:true,
+        saving: true
       });
-      this.itemsRef.child(`users/${fbchecker}`).once('value', (snap) => {
-        const info = snap.val();
-        this.setState({
-          userName: info.name,
-          userTitle: info.title,
-          saving: true
-        });
-        this.saveToFb();
-      });
+      this.saveToFb(fbchecker);
+      // this.itemsRef.child(`users/${fbchecker}`).once('value', (snap) => {
+      //   const info = snap.val();
+      //   this.setState({
+      //     userName: info.name,
+      //     userTitle: info.title,
+      //     saving: true
+      //   });
+      //   this.saveToFb();
+      // });
     }
   }
 
   closeModal() {
-    setTimeout(() => {this.setState({open: false, saving: false})}, 6000)
+    this.setState({saving:false})
+    setTimeout(() => {this.setState({open: false})}, 1000)
   }
 
-  saveToFb() {
-    let contSaving
+  saveToFb(code) {
     const params = {
-      name: this.state.userName,
-      title: this.state.userTitle,
+      code: code,
       hour: `${this.state.userHour}:${this.state.userMinutes}`,
       date: `${this.state.userMonth} ${this.state.userDay}`,
+      where: this.state.eventWhere,
       event: this.state.eventTitle
     }
-    this.itemsRef.child(`${this.state.deviceId}/registers`).push(params, function(error) {
-      if (error)
-        console.log('Error has occured during saving process')
-      else
-        console.log("Data has been saved succesfully")
-    })
-    this.closeModal()
+    this.itemsRef.child(`${this.state.deviceId}/registers`).push(params, (error) => {
+      if (error) {
+        Alert.alert('Error','Verifique su conexión a internet.');
+        this.setState({saving:false, open:false});
+      } else{
+        this.closeModal();
+        console.log("Data has been saved succesfully");
+      }
+    });
   }
 
   noDevice() {
@@ -160,28 +173,15 @@ class ScanApp extends Component {
           animationDuration={500}
           animationTension={50}
           modalDidOpen={() => this.setState({open: true})}
-          modalDidClose={() => this.setState({open: false, userName: null, saving:false})}
+          modalDidClose={() => this.setState({open: false, saving:false})}
           modalStyle={styles.modal}
-          overlayBackground={'rgba(69, 66, 84, 0.85)'}
+          overlayBackground={'rgba(0,0,0, 0.90)'}
           >
           <View style={styles.modalContent}>
-            <ActivityIndicator size='large' style={{opacity: !this.state.userName ? 1.0 : 0.0, height: !this.state.userName ? 'auto' : 0}}/>
-            <Text style={styles.modalTitle}>
-              Bienvenido{"\n"}{this.state.userName}
-            </Text>
-            <Text style={styles.modalSubtitle}>{this.state.userTitle}</Text>
-            <View style={{marginTop:50, marginLeft:20}}>
-              <Text style={styles.modalTitles}>ASISTE</Text>
-              <Text style={styles.modalData}>{this.state.eventTitle}</Text>
-              <Text style={styles.modalTitles}>FECHA DE INGRESO</Text>
-              <Text style={styles.modalData}>{this.state.userMonth} {this.state.userDay}</Text>
-              <Text style={styles.modalTitles}>HORA DE REGISTRO</Text>
-              <Text style={styles.modalDataHour}>{this.state.userHour}:{this.state.userMinutes}</Text>
+            <View style={{opacity: !this.state.saving ? 1.0 : 0.0, height: !this.state.saving ? 'auto' : 0}}>
+              <Image source={require('./img/check.png')} style={styles.check} />
             </View>
-            <TouchableOpacity
-              onPress={() => this.setState({open: false})}>
-              <Text style={styles.closeModal}>OK</Text>
-            </TouchableOpacity>
+            <ActivityIndicator size='large' style={{opacity: this.state.saving ? 1.0 : 0.0, height: this.state.saving ? 'auto' : 0}}/>
           </View>
         </Modal>
       </View>
@@ -196,7 +196,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     margin: 20,
     padding: 10,
-    backgroundColor: '#eee'
+    backgroundColor: 'transparent'
+  },
+  check: {
+    alignItems: 'center',
+    resizeMode: 'contain',
+    height: 80,
+    width: '100%',
   },
   modalContent: {
   },
