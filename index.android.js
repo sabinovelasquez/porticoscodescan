@@ -80,6 +80,7 @@ class ScanApp extends Component {
         saving: true
       });
       this.saveToFb(fbchecker);
+      // fbchecker.substring(0, 1) == 'W' && 
       // this.itemsRef.child(`users/${fbchecker}`).once('value', (snap) => {
       //   const info = snap.val();
       //   this.setState({
