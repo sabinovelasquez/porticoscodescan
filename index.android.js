@@ -67,7 +67,7 @@ class ScanApp extends Component {
   }
   onBarCodeRead(e) {
     const fbchecker = e.data;
-    if(fbchecker.substring(0, 1) == 'W' && !this.state.saving && !this.state.open) {
+    if(!this.state.saving && !this.state.open) {
       const d = new Date();
       const hour = this.formatTime(d.getHours());
       const minutes = this.formatTime(d.getMinutes());
@@ -80,6 +80,7 @@ class ScanApp extends Component {
         saving: true
       });
       this.saveToFb(fbchecker);
+      // fbchecker.substring(0, 1) == 'W' && 
       // this.itemsRef.child(`users/${fbchecker}`).once('value', (snap) => {
       //   const info = snap.val();
       //   this.setState({
