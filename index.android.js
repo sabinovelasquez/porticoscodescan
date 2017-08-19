@@ -18,6 +18,7 @@ import Camera from 'react-native-camera';
 import * as firebase from 'firebase';
 import Modal from 'react-native-simple-modal';
 
+const Sound = require('react-native-sound');
 const device = require('react-native-device-info');
 const firebaseConfig = {
   apiKey: "AIzaSyD2yyAV6j40TlyQgg7d8tXZq0f8yaYpCbM",
@@ -30,7 +31,6 @@ const firebaseConfig = {
 
 const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 const firebaseApp = firebase.initializeApp(firebaseConfig);
-
 class ScanApp extends Component {
   constructor(props) {
     super(props);
@@ -94,6 +94,13 @@ class ScanApp extends Component {
   }
 
   closeModal() {
+    const beep = new Sound('beep.mp3', Sound.MAIN_BUNDLE, (error) => {
+      if (error) {
+        return;
+      } else {
+        beep.play();
+      }
+    });
     this.setState({saving:false})
     setTimeout(() => {this.setState({open: false})}, 1000)
   }
