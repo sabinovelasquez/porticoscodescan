@@ -18,6 +18,7 @@ import Camera from 'react-native-camera';
 import * as firebase from 'firebase';
 import Modal from 'react-native-simple-modal';
 
+const Sound = require('react-native-sound');
 const device = require('react-native-device-info');
 const firebaseConfig = {
   apiKey: "AIzaSyD2yyAV6j40TlyQgg7d8tXZq0f8yaYpCbM",
@@ -30,7 +31,6 @@ const firebaseConfig = {
 
 const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 const firebaseApp = firebase.initializeApp(firebaseConfig);
-
 class ScanApp extends Component {
   constructor(props) {
     super(props);
@@ -44,16 +44,33 @@ class ScanApp extends Component {
   }
 
   componentDidMount() {
-    this.itemsRef.child(`${this.state.deviceId}/settings`).on('value', (snap) => {
+    this.itemsRef.child(`devices/${this.state.deviceId}/settings`).on('value', (snap) => {
       const info = snap.val();
       if (!info) {
         this.noDevice();
       }else {
         this.setState({
+          eventKey: info.eventKey,
           eventWhere: info.where,
           eventTitle: info.event,
           eventHour: info.eventHour,
           note: info.note
+        });
+        this.getEventName();
+      }
+    });
+  }
+  noEvent() {
+    Alert.alert('Error','Este dispositivo no está asociado a un evento.');
+  }
+  getEventName() {
+    this.itemsRef.child(`events/${this.state.eventKey}`).on('value', (snap) => {
+      const info = snap.val();
+      if (!info) {
+        this.noEvent();
+      }else {
+        this.setState({
+          mainTitle: info.title
         });
       }
     });
@@ -94,6 +111,13 @@ class ScanApp extends Component {
   }
 
   closeModal() {
+    const beep = new Sound('beep.mp3', Sound.MAIN_BUNDLE, (error) => {
+      if (error) {
+        return;
+      } else {
+        beep.play();
+      }
+    });
     this.setState({saving:false})
     setTimeout(() => {this.setState({open: false})}, 1000)
   }
@@ -106,7 +130,7 @@ class ScanApp extends Component {
       where: this.state.eventWhere,
       event: this.state.eventTitle
     }
-    this.itemsRef.child(`${this.state.deviceId}/registers`).push(params, (error) => {
+    this.itemsRef.child(`events/${this.state.eventKey}/registers`).push(params, (error) => {
       if (error) {
         Alert.alert('Error','Verifique su conexión a internet.');
         this.setState({saving:false, open:false});
@@ -119,12 +143,12 @@ class ScanApp extends Component {
 
   noDevice() {
     const params = {
-      event: 'Acreditación',
+      event: 'Bloque 1',
       note: 'Bienvenido',
-      eventHour: 'Mayo 4 - 00:00',
+      eventHour: '00:00 - 00:00',
       where: 'Sala X'
     }
-    this.itemsRef.child(`${this.state.deviceId}/settings/`).set(params, function(error) {
+    this.itemsRef.child(`devices/${this.state.deviceId}/settings/`).set(params, function(error) {
       if (error)
         console.log('Error has occured during saving process')
       else
@@ -138,7 +162,7 @@ class ScanApp extends Component {
         <StatusBar hidden />
         <View style={styles.top}>
           <Image source={require('./img/background.png')} style={styles.backgroundImage}>
-            <Text style={styles.title}>FLEG</Text>
+            <Text style={styles.title}>{this.state.mainTitle}</Text>
             <Text style={styles.subTitle}>{this.state.eventWhere}</Text>
           </Image>
           <ActivityIndicator size='large' style={{opacity: !this.state.note ? 1.0 : 0.0, height: !this.state.note ? 'auto' : 0, marginTop: !this.state.note ? 30 : 0}}/>
@@ -249,7 +273,7 @@ const styles = StyleSheet.create({
   top: {
     height: 280,
     width: '100%',
-    backgroundColor:'#454254'
+    backgroundColor:'#2C223F'
   },
   backgroundImage: {
     alignItems: 'center',
@@ -296,7 +320,7 @@ const styles = StyleSheet.create({
   },
   bottom: {
     flex: 4,
-    backgroundColor:'#EEEEEE',
+    backgroundColor:'#ecf0f1',
     width: '100%'
   },
   note: {
@@ -308,7 +332,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 5,
     fontFamily: 'Montserrat-Regular',
-    fontSize: 34,
+    fontSize: 28,
     color: '#00B9E6',
   },
   noteNormal: {
@@ -319,17 +343,18 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   title: {
+    marginTop: 10,
     textAlign: 'center',
     width: '100%',
     fontFamily: 'Montserrat-Bold',
-    fontSize: 40,
+    fontSize: 34,
     color: '#fff'
   },
   subTitle: {
     textAlign: 'center',
     width: '100%',
     fontFamily: 'Montserrat-Light',
-    fontSize: 32,
+    fontSize: 30,
     color: '#fff'
   },
   event: {
