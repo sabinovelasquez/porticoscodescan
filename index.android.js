@@ -50,6 +50,7 @@ class ScanApp extends Component {
         this.noDevice();
       }else {
         this.setState({
+          latestScan: 0,
           eventKey: info.eventKey,
           eventWhere: info.where,
           eventTitle: info.event,
@@ -61,6 +62,9 @@ class ScanApp extends Component {
     });
   }
   noEvent() {
+    this.setState({
+      eventKey: 'no-event'
+    });
     Alert.alert('Error','Este dispositivo no está asociado a un evento.');
   }
   getEventName() {
@@ -84,11 +88,12 @@ class ScanApp extends Component {
   }
   onBarCodeRead(e) {
     const fbchecker = e.data;
-    if(!this.state.saving && !this.state.open) {
+    if(!this.state.saving && !this.state.open && fbchecker.length == 4 && this.state.latestScan != fbchecker) {
       const d = new Date();
       const hour = this.formatTime(d.getHours());
       const minutes = this.formatTime(d.getMinutes());
       this.setState({
+        latestScan: fbchecker,
         userDay: d.getDate(),
         userHour: hour,
         userMinutes: minutes,
@@ -97,16 +102,6 @@ class ScanApp extends Component {
         saving: true
       });
       this.saveToFb(fbchecker);
-      // fbchecker.substring(0, 1) == 'W' && 
-      // this.itemsRef.child(`users/${fbchecker}`).once('value', (snap) => {
-      //   const info = snap.val();
-      //   this.setState({
-      //     userName: info.name,
-      //     userTitle: info.title,
-      //     saving: true
-      //   });
-      //   this.saveToFb();
-      // });
     }
   }
 
@@ -119,14 +114,19 @@ class ScanApp extends Component {
       }
     });
     this.setState({saving:false})
-    setTimeout(() => {this.setState({open: false})}, 1000)
+    setTimeout(() => {this.setState({latestScan: 0})}, 60000)
+    setTimeout(() => {this.setState({open: false})}, 500)
   }
 
   saveToFb(code) {
+    const d = new Date();
+    const day = d.getDate();
+    const month = d.getMonth() + 1;
+    const year = d.getFullYear();
     const params = {
       code: code,
       hour: `${this.state.userHour}:${this.state.userMinutes}`,
-      date: `${this.state.userMonth} ${this.state.userDay}`,
+      date: `${day}-${month}-${year}`,
       where: this.state.eventWhere,
       event: this.state.eventTitle
     }
@@ -174,6 +174,7 @@ class ScanApp extends Component {
             this.camera = cam;
           }}
           aspect={Camera.constants.Aspect.fill}
+          barCodeTypes={['org.iso.QRCode']}
           onBarCodeRead={this.onBarCodeRead.bind(this)}
           type={this.state.capType}
           mirrorImage={true}
