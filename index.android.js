@@ -34,6 +34,9 @@ const firebaseApp = firebase.initializeApp(firebaseConfig);
 class ScanApp extends Component {
   constructor(props) {
     super(props);
+    firebase.auth().signInWithEmailAndPassword('device@studiovision.cl', 'porticos2017').catch(function(error) {
+      Alert.alert(error.code, error.message);
+    });
     this.itemsRef = firebaseApp.database().ref();
     this.state = {
       open: false,
