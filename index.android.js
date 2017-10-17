@@ -91,7 +91,7 @@ class ScanApp extends Component {
   }
   onBarCodeRead(e) {
     const fbchecker = e.data;
-    if(!this.state.saving && !this.state.open && fbchecker.length <= 4 && fbchecker.length > 0 && this.state.latestScan != fbchecker) {
+    if(!this.state.saving && !this.state.open && fbchecker.length > 0 && this.state.latestScan != fbchecker) {
       const d = new Date();
       const hour = this.formatTime(d.getHours());
       const minutes = this.formatTime(d.getMinutes());
