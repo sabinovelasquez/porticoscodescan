@@ -291,7 +291,7 @@ const styles = StyleSheet.create({
   },
   square: {
     height: 250,
-    width: 250,
+    width: '33.33%',
     borderWidth: 0.5,
     borderColor:'#fff'
   },
@@ -306,13 +306,13 @@ const styles = StyleSheet.create({
   },
   squareLeft: {
     opacity: 0.4,
-    width: 180,
+    width: '33.33%',
     height: 250,
     backgroundColor: '#000'
   },
   squareRight: {
     opacity: 0.4,
-    width: 200,
+    width: '33.33%',
     height: 250,
     backgroundColor: '#000'
   },
