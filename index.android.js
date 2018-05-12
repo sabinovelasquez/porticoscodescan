@@ -21,12 +21,12 @@ import Modal from 'react-native-simple-modal';
 const Sound = require('react-native-sound');
 const device = require('react-native-device-info');
 const firebaseConfig = {
-  apiKey: "AIzaSyD2yyAV6j40TlyQgg7d8tXZq0f8yaYpCbM",
-  authDomain: "porticos-18e1d.firebaseapp.com",
-  databaseURL: "https://porticos-18e1d.firebaseio.com",
-  projectId: "porticos-18e1d",
-  storageBucket: "porticos-18e1d.appspot.com",
-  messagingSenderId: "578629257790",
+  apiKey: "AIzaSyDRRYHq8O9M_LZmiKVWmc8eOL83LbK0S5I",
+  authDomain: "scanpad-net.firebaseapp.com",
+  databaseURL: "https://scanpad-net.firebaseio.com",
+  projectId: "scanpad-net",
+  storageBucket: "",
+  messagingSenderId: "201822480848",
 };
 
 const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
@@ -34,7 +34,7 @@ const firebaseApp = firebase.initializeApp(firebaseConfig);
 class ScanApp extends Component {
   constructor(props) {
     super(props);
-    firebase.auth().signInWithEmailAndPassword('device@studiovision.cl', 'porticos2017').catch(function(error) {
+    firebase.auth().signInWithEmailAndPassword('device@scanpad.net', 'sc4np4d2018').catch(function(error) {
       Alert.alert(error.code, error.message);
     });
     this.itemsRef = firebaseApp.database().ref();
