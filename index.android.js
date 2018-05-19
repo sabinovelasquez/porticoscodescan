@@ -42,7 +42,7 @@ class ScanApp extends Component {
       open: false,
       saving: false,
       deviceId: device.getUniqueID(),
-      capType: Camera.constants.Type.back
+      capType: Camera.constants.Type.front
     };
   }
 
@@ -180,7 +180,6 @@ class ScanApp extends Component {
           barCodeTypes={['org.iso.QRCode']}
           onBarCodeRead={this.onBarCodeRead.bind(this)}
           type={this.state.capType}
-          mirrorImage={true}
           style={styles.scan}>
           <View style={styles.squareTop}></View>
           <View style={styles.squareMidC}>
@@ -290,8 +289,8 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   square: {
-    height: 250,
-    width: '33.33%',
+    height: '100%',
+    width: '50%',
     borderWidth: 0.5,
     borderColor:'#fff'
   },
@@ -306,8 +305,7 @@ const styles = StyleSheet.create({
   },
   squareLeft: {
     opacity: 0.4,
-    width: '33.33%',
-    height: 250,
+    width: '25%',
     backgroundColor: '#000'
   },
   squareRight: {
@@ -347,18 +345,18 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   title: {
-    marginTop: 10,
+    marginTop: 20,
     textAlign: 'center',
     width: '100%',
     fontFamily: 'Montserrat-Bold',
-    fontSize: 34,
+    fontSize: 30,
     color: '#fff'
   },
   subTitle: {
     textAlign: 'center',
     width: '100%',
     fontFamily: 'Montserrat-Light',
-    fontSize: 30,
+    fontSize: 29,
     color: '#fff'
   },
   event: {
